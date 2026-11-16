@@ -204,3 +204,16 @@ Configuration loading order:
 3. `Acceptance.suite.dist.yml`
 4. `Acceptance.suite.yml`
 5. environment config
+
+## PHP Constants
+
+Since Codeception 5.4.0, configuration files can use PHP constants with the `!php/const` tag:
+
+```yaml
+modules:
+    config:
+        WebDriver:
+            browser: !php/const App\Tests\Support\Config::BROWSER
+```
+
+The configuration is loaded before the tests, so the class of a class constant must be autoloadable (e.g. via Composer).

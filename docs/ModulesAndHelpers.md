@@ -420,6 +420,8 @@ params:
     - app/config/parameters.yml
 ```
 
+Since Codeception 5.4.0, PHP constants can be used in YAML parameter files with the `!php/const` tag.
+
 Example: load parameters from php file (Yii)
 
 ```yaml
