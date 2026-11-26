@@ -229,27 +229,28 @@ For `.feature`-files (Gherkin) use tags:
 Feature: Admin area
 ```
 
-## Examples Attribute
+## ExampleRow Attribute
 
 What if you want to execute the same test scenario with different data? In this case you can inject examples
 as `\Codeception\Example` instances.
-Data is defined via the `Examples` attribute
+Since Codeception 5.4.0, data is defined via the `ExampleRow` attribute. Every attribute describes exactly one example,
+its arguments form the row:
 
 ```php
 <?php
 namespace Tests\Api;
 
-use Codeception\Attribute\Examples;
+use Codeception\Attribute\ExampleRow;
 use Codeception\Example;
 use Tests\Support\ApiTester;
 
 class EndpointCest
 {
 
-  #[Examples('/api', 200)]
-  #[Examples('/api/protected', 401)]
-  #[Examples('/api/not-found-url', 404)]
-  #[Examples('/api/faulty', 500)]
+  #[ExampleRow('/api', 200)]
+  #[ExampleRow('/api/protected', 401)]
+  #[ExampleRow('/api/not-found-url', 404)]
+  #[ExampleRow('/api/faulty', 500)]
   public function checkEndpoints(ApiTester $I, Example $example)
   {
     $I->sendGet($example[0]);
@@ -264,29 +265,57 @@ You can also use [named arguments](https://www.php.net/manual/en/functions.argum
 
 namespace Tests\Api;
 
-use Codeception\Attribute\Examples;
+use Codeception\Attribute\ExampleRow;
 use Codeception\Example;
 use Tests\Support\ApiTester;
 
 class EndpointCest
 {
 
-  #[Examples(url: '/api', expectedReponseCode: 200)]
-  #[Examples(url: '/api/protected', expectedReponseCode: 401)]
-  #[Examples(url: '/api/not-found-url', expectedReponseCode: 404)]
-  #[Examples(url: '/api/faulty', expectedReponseCode: 500)]
+  #[ExampleRow(url: '/api', expectedResponseCode: 200)]
+  #[ExampleRow(url: '/api/protected', expectedResponseCode: 401)]
+  #[ExampleRow(url: '/api/not-found-url', expectedResponseCode: 404)]
+  #[ExampleRow(url: '/api/faulty', expectedResponseCode: 500)]
   public function checkEndpoints(ApiTester $I, Example $example)
   {
     $I->sendGet($example['url']);
-    $I->seeResponseCodeIs($example['expectedReponseCode']);
+    $I->seeResponseCodeIs($example['expectedResponseCode']);
   }
 }
 
 ```
 
+Arguments can be of any type, including arrays:
+
+```php
+  #[ExampleRow(['status' => 'active'], ['id' => 1])]
+  #[ExampleRow(['status' => 'deleted'], [])]
+  public function filterUsers(ApiTester $I, Example $example)
+  {
+    $I->sendGet('/users', $example[0]);
+    $I->seeResponseContainsJson($example[1]);
+  }
+```
+
+## Examples Attribute
+
+Before Codeception 5.4.0, examples were defined via the `Examples` attribute, which is still supported.
+Used once per example, it works like `ExampleRow`:
+
+```php
+  #[Examples('/api', 200)]
+  #[Examples('/api/protected', 401)]
+```
+
+However, a single `#[Examples]` attribute whose arguments are all arrays is treated as a list of examples:
+`#[Examples(['status' => 'active'], ['id' => 1])]` creates two examples, `['status' => 'active']` and `['id' => 1]`,
+instead of one example with two arguments. Prefer `ExampleRow`, which doesn't have this ambiguity.
+
+Examples defined with `#[ExampleRow]` are added after examples from `#[Examples]` and before examples from a data provider.
+
 ## Example Annotation
 
-As well as the `\Codeception\Attribute\Examples` attribute, available for Cest tests, the `@example` annotation allows you to
+As well as the `\Codeception\Attribute\ExampleRow` attribute, available for Cest tests, the `@example` annotation allows you to
 inject test parameters in place of an actual [DataProvider](#dataprovider-attribute) for Unit tests.
 
 ```php
