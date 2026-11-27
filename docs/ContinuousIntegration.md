@@ -154,7 +154,11 @@ test:
 
 ![report](https://codeception.com/images/gitlab/build.png)
 
-For acceptance testing you can use `codeception/codeception` docker image as base. See example below:
+For acceptance testing you can use `codeception/codeception` docker image as base.
+Images are available for all supported PHP versions, on Debian and on Alpine Linux.
+Append the PHP version to the tag to choose one, e.g. `codeception/codeception:latest-php8.4`, `codeception/codeception:5.4.0-php8.4` or `codeception/codeception:latest-php8.4-alpine`.
+Tags without a PHP version, like `latest` or `5.4.0`, use the default PHP version (currently 8.5).
+See example below:
 
 ```yaml
 image:
